@@ -18,22 +18,22 @@ void (*pfonction)(void);
 //Redéfinition des handlers
 void TIM2_IRQHandler (void) {
 	(*pfonction)();
-	TIM2->DIER &= ~TIM_SR_UIF;
+	TIM2->SR &= ~TIM_SR_UIF;
 }
 
 void TIM1_UP_IRQHandler (void) {
 	(*pfonction)();
-	TIM1->DIER &= ~TIM_SR_UIF;
+	TIM1->SR &= ~TIM_SR_UIF;
 }
 
 void TIM3_IRQHandler (void) {
 	(*pfonction)();
-	TIM3->DIER &= ~TIM_SR_UIF;
+	TIM3->SR &= ~TIM_SR_UIF;
 }
 
 void TIM4_IRQHandler (void) {
 	(*pfonction)();
-	TIM4->DIER &= ~TIM_SR_UIF;
+	TIM4->SR &= ~TIM_SR_UIF;
 }
 
 void MyTimer_Conf(TIM_TypeDef * Timer,int Arr, int Psc) {
@@ -64,10 +64,48 @@ void MyTimer_Stop(TIM_TypeDef * Timer) {
 
 void MyTimer_IT_Conf(TIM_TypeDef * Timer, void (*IT_function) (void),int Prio) {
 	pfonction = IT_function;
-	//NVIC->IP
+	if (Timer == TIM1) {
+		NVIC->IP[25] = Prio << 4;
+	}
+	else if (Timer == TIM2) {
+		NVIC->IP[28] = Prio << 4;
+	}
+	else if (Timer == TIM3) {
+		NVIC->IP[29] = Prio << 4;
+	}
+	else if (Timer == TIM4) {
+		NVIC->IP[30] = Prio << 4;
+	}
 }
 
 void MyTimer_IT_Enable(TIM_TypeDef * Timer) {
 	Timer->DIER |= TIM_DIER_UIE;
-	NVIC->ISER[0] = 1; //A REGLER !!!!!
+	if (Timer == TIM1) {
+		NVIC->ISER[0] |= (1 << 25);
+	}
+	else if (Timer == TIM2) {
+		NVIC->ISER[0] |= (1 << 28);
+	}
+	else if (Timer == TIM3) {
+		NVIC->ISER[0] |= (1 << 29);
+	}
+	else if (Timer == TIM4) {
+		NVIC->ISER[0] |= (1 << 30);
+	}
+}
+	
+void MyTimer_IT_Disable(TIM_TypeDef * Timer) {
+		Timer->DIER &= ~TIM_DIER_UIE;
+	if (Timer == TIM1) {
+		NVIC->ISER[0] &= ~(1 << 25);
+	}
+	else if (Timer == TIM2) {
+		NVIC->ISER[0] &= ~(1 << 28);
+	}
+	else if (Timer == TIM3) {
+		NVIC->ISER[0] &= ~(1 << 29);
+	}
+	else if (Timer == TIM4) {
+		NVIC->ISER[0] &= ~(1 << 30);
+	}
 }

@@ -20,8 +20,6 @@ typedef struct {
 } Time;
 
 
-
-
 /**
 	* @brief  Configure le chronomètre. 
   * @note   A lancer avant toute autre fonction.

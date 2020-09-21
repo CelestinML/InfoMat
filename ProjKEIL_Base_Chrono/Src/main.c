@@ -22,11 +22,13 @@
 
 #include "Chrono.h"
 
-#include "MyTimer.h"
+#include "Math.h"
 
 #include <stdio.h>
 
 void  SystemClock_Config(void);
+
+Time * Chrono;
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -36,10 +38,6 @@ void  SystemClock_Config(void);
   * @retval None
   */
 	
-	void Test(void) {
-		printf("HEEYYY\n");
-	}
-	
 int main(void)
 {
   /* Configure the system clock to 72 MHz */
@@ -47,24 +45,14 @@ int main(void)
 
   /* Add your application code here */
 	
-	//Entrainement manipulation de bits
-	
-	//SPI1->CR1 |= SPI_CR1_CPOL;
-	//SPI1->CR1 &= ~SPI_CR1_DFF;
-	//USART2->CR2 |= USART_CR2_STOP_1;
-	
-	MyTimer_Conf(TIM2, 0x8000, 0X1500);
-	MyTimer_IT_Conf(TIM2, (void*)Test, 0);
-	MyTimer_IT_Enable(TIM2);
-	MyTimer_Start(TIM2);
-	//MyTimer_Stop(TIM2);
-	
   // Configuration chronomètre
 	Chrono_Conf(TIM2);
 	
 	// Lancement chronomètre
 	Chrono_Start(); 
   
+	Chrono = Chrono_Read();
+	
   /* Infinite loop */
   while (1)
   {

@@ -1,4 +1,5 @@
 nucleo-f103rb\chrono.o: ..\Services\Chrono.c
+nucleo-f103rb\chrono.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\Math.h
 nucleo-f103rb\chrono.o: ..\Services\Chrono.h
 nucleo-f103rb\chrono.o: ..\Inc\stm32f103xb.h
 nucleo-f103rb\chrono.o: C:\Users\celes\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\CMSIS\Core\Include\core_cm3.h
