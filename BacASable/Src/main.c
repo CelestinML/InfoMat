@@ -60,6 +60,7 @@ int main(void)
 	
 	GPIOC->CRH |= GPIO_CRH_MODE10;
 	GPIOC->CRH &= ~GPIO_CRH_CNF10;
+	GPIOC->CRH |= GPIO_CRH_CNF10_0;
 	
   /* Infinite loop */
   while (1)

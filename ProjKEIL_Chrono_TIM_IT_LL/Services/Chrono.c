@@ -10,6 +10,7 @@ Utilise la lib MyTimers.h /.c
 
 #include "Chrono.h"
 #include "MyTimer.h"
+#include "Math.h"
 
 // variable privée de type Time qui mémorise la durée mesurée
 static Time Chrono_Time; // rem : static rend la visibilité de la variable Chrono_Time limitée à ce fichier 
@@ -19,6 +20,13 @@ static TIM_TypeDef * Chrono_Timer=TIM1; // init par défaut au cas où l'utilisate
 
 // déclaration callback appelé toute les 10ms
 void Chrono_Task_10ms(void);
+
+void CalculArrPsc(float periode_int, int* psc, int* arr) {
+	float arr_temp = 0xFFFF;
+	float psc_temp = ceil((72.0*pow(10, 6) *  periode_int) / (arr_temp + 1.0) - 1.0);
+	*arr = (int)(periode_int * 72.0*pow(10, 6)) / (psc_temp + 1.0) - 1.0;
+	*psc = (int)psc_temp;
+}
 
 /**
 	* @brief  Configure le chronomètre. 
@@ -36,8 +44,11 @@ void Chrono_Conf(TIM_TypeDef * Timer)
 	// Fixation du Timer
 	Chrono_Timer=Timer;
 
+	int psc, arr;
+	CalculArrPsc(1, &psc, &arr);
+	
 	// Réglage Timer pour un débordement à 10ms
-	MyTimer_Conf(Chrono_Timer,999, 719);
+	MyTimer_Conf(Chrono_Timer,arr, psc);
 	
 	// Réglage interruption du Timer avec callback : Chrono_Task_10ms()
 	MyTimer_IT_Conf(Chrono_Timer, Chrono_Task_10ms,3);
@@ -45,7 +56,10 @@ void Chrono_Conf(TIM_TypeDef * Timer)
 	// Validation IT
 	MyTimer_IT_Enable(Chrono_Timer);
 	
-	
+	//Activation des IO
+	RCC->APB2ENR |= RCC_APB2ENR_IOPCEN; //Activation de la clock des IO
+	GPIOC->CRH |= GPIO_CRH_MODE10; //Config en output de la pin10
+	GPIOC->CRH &= ~GPIO_CRH_CNF10; //Config en push pull de la pin10
 }
 
 
@@ -102,9 +116,6 @@ Time * Chrono_Read(void)
 	return &Chrono_Time;
 }
 
-
-
-
 /**
 	* @brief  incrémente la variable privée Chron_Time modulo 60mn 
   * @note   
@@ -113,22 +124,8 @@ Time * Chrono_Read(void)
   */
 void Chrono_Task_10ms(void)
 { 
-	Chrono_Time.Hund++;
-	if (Chrono_Time.Hund==100)
-	{
-		Chrono_Time.Sec++;
-		Chrono_Time.Hund=0;
-	}
-	if (Chrono_Time.Sec==60)
-	{
-		Chrono_Time.Min++;
-		Chrono_Time.Sec=0;
-	}
-	if (Chrono_Time.Min==60)
-	{
-		Chrono_Time.Hund=0;
-	}
-	
+	if ((GPIOC->ODR & (0X01 << 10 )) != 0 )
+		GPIOC->ODR &= ~GPIO_ODR_ODR10;
+	else
+		GPIOC->ODR |= GPIO_ODR_ODR10;
 }
-
-
